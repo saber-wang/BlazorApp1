@@ -1,0 +1,34 @@
+﻿@page "/"
+@inject HttpClient Http
+@code
+{
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        await rword();
+    }
+
+    private async Task rword()
+    {
+
+        string txt = await Http.GetStringAsync("Words");
+
+        System.Diagnostics.Stopwatch stopwatch = new System.Diagnostics.Stopwatch();
+        stopwatch.Start();
+        var xdocument = XDocument.Parse(txt);
+        stopwatch.Stop();
+
+        Console.WriteLine(stopwatch.ElapsedMilliseconds);
+
+        using MemoryStream generatedDocument = new MemoryStream();
+        xdocument.Save(generatedDocument);
+        generatedDocument.Position = 0;
+        using XmlReader partXmlReader = XmlReader.Create(generatedDocument);
+
+        stopwatch.Restart();
+        XDocument.Load(partXmlReader);
+        stopwatch.Stop();
+        Console.WriteLine(stopwatch.ElapsedMilliseconds); ;
+
+
+    }
+}
